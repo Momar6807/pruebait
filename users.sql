@@ -16,3 +16,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
+
+-- insertar usuario de prueba
+INSERT INTO users(username, password, email, first_name, last_name)
+VALUES('admin', 'root', 'admin@mail.com', 'Admin', 'Superuser');
