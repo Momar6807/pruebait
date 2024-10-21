@@ -7,7 +7,11 @@ $urlParts = explode('/', trim($url, '/'));
 $route = '/' . $urlParts[0] . (isset($urlParts[1]) ? '/' . $urlParts[1] : '') . (isset($urlParts[2]) && is_numeric($urlParts[2]) ? '/:id' : '');
 switch ($route) {
     case '/':
-        require './views/index.php';
+        if (isset($_SESSION['user'])) {
+            header('Location: /users');
+        } else {
+            require './views/index.php';
+        }
         break;
     case '/users':
         if (isset($_SESSION['user'])) {
