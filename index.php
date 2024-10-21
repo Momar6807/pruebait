@@ -2,7 +2,6 @@
 session_start();
 $url = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
-// $url = str_contains($url, '/pruebait') ? trim($url, '/pruebait') : $url;
 $urlParts = explode('/', trim($url, '/'));
 $route = '/' . $urlParts[0] . (isset($urlParts[1]) ? '/' . $urlParts[1] : '') . (isset($urlParts[2]) && is_numeric($urlParts[2]) ? '/:id' : '');
 switch ($route) {
