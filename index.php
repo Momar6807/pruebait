@@ -30,17 +30,21 @@ switch ($route) {
                 break;
             case 'POST':
                 header('Content-Type: application/json; charset=utf-8');
-                $createdUser = createUser(
-                    $_POST['username'],
-                    $_POST['email'],
-                    $_POST['password'],
-                    $_POST['first_name'],
-                    $_POST['last_name']
-                );
-                if (!$createdUser['error']) {
-                    echo json_encode(['status' => 200, 'data' => $createdUser['user']]);
-                } else {
-                    echo json_encode(['status' => 500, 'error' => $createdUser['data']]);
+                if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['first_name']) && isset($_POST['last_name'])) {
+                    $createdUser = createUser(
+                        $_POST['username'],
+                        $_POST['email'],
+                        $_POST['password'],
+                        $_POST['first_name'],
+                        $_POST['last_name']
+                    );
+                    if (!$createdUser['error']) {
+                        echo json_encode(['status' => 200, 'data' => $createdUser['user']]);
+                    } else {
+                        echo json_encode(['status' => 500, 'error' => $createdUser['data']]);
+                    }
+                }else{
+                    echo json_encode(['status' => 500, 'error' => 'Todos los campos son obligatorios']);
                 }
                 break;
             case 'DELETE':

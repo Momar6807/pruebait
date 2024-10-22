@@ -2,16 +2,16 @@
 -- crear base de datos
 
 CREATE DATABASE IF NOT EXISTS pruebait;
-
+go;
 use pruebait;
 -- tabla de usuarios
 CREATE TABLE users (
     id int not null AUTO_INCREMENT primary key,
-    username varchar(255) UNIQUE NOT NULL,
-    password varchar(255) NOT NULL,
-    email varchar(255) UNIQUE NOT NULL,
-    first_name varchar(255) NOT NULL,
-    last_name varchar(255) NOT NULL,
+    username varchar(100) UNIQUE NOT NULL,
+    password varchar(100) NOT NULL,
+    email varchar(100) UNIQUE NOT NULL,
+    first_name varchar(100) NOT NULL,
+    last_name varchar(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
