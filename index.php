@@ -43,7 +43,7 @@ switch ($route) {
                     } else {
                         echo json_encode(['status' => 500, 'error' => $createdUser['data']]);
                     }
-                }else{
+                } else {
                     echo json_encode(['status' => 500, 'error' => 'Todos los campos son obligatorios']);
                 }
                 break;
@@ -56,30 +56,39 @@ switch ($route) {
         break;
     case '/api/users/:id':
         require './controllers/users.php';
-        $userId = $urlParts[2];
+        $userId = (int) $urlParts[2];
         switch ($method) {
-            case 'PUT':
+            case 'GET':
                 header('Content-Type: application/json; charset=utf-8');
-                // obtener datos del PUT
-                parse_str(file_get_contents('php://input'), $putdata);
+                $user = getUser($userId);
+                if (!$user['error']) {
+                    echo json_encode(['status' => 200, 'data' => $user['data']]);
+                    return;
+                }
+                echo json_encode(['status' => 500, 'error' => $user['data']]);
+                break;
+            case 'POST':
+                header('Content-Type: application/json; charset=utf-8');
                 if (
-                    isset($putdata['username'])
-                    && isset($putdata['email'])
-                    && isset($putdata['first_name'])
-                    && isset($putdata['last_name'])
+                    isset($_POST['username'])
+                    && isset($_POST['email'])
+                    && isset($_POST['first_name'])
+                    && isset($_POST['last_name'])
                 ) {
                     $updatedUser = updateUser(
                         $userId,
-                        $putdata['username'],
-                        $putdata['email'],
-                        $putdata['first_name'],
-                        $putdata['last_name'],
-                        $putdata['password'] ?? null,
+                        $_POST['username'],
+                        $_POST['email'],
+                        $_POST['first_name'],
+                        $_POST['last_name'],
+                        $_POST['password'] ?? null,
                     );
                     if (!$updatedUser['error']) {
-                        echo json_encode(['status' => 200, 'data' => $updatedUser['user']]);
+                        echo json_encode(['status' => 200, 'data' => $updatedUser['data']]);
+                        return;
                     } else {
                         echo json_encode(['status' => 500, 'error' => $updatedUser['data']]);
+                        return;
                     }
                 } else {
                     echo json_encode(['status' => 400, 'data' => 'Faltan datos necesarios']);
@@ -88,11 +97,7 @@ switch ($route) {
             case 'DELETE':
                 header('Content-Type: application/json; charset=utf-8');
                 $deleted = deleteUser($userId);
-                if (!$deleted['error']) {
-                    echo json_encode(['status' => 200, 'message' => 'Usuario eliminado', 'data' => $deleted]);
-                } else {
-                    echo json_encode(['status' => 500, 'error' => 'Error al eliminar el usuario']);
-                }
+                echo json_encode(['status' => 200, 'message' => 'Usuario eliminado', 'data' => $deleted]);
                 break;
             default:
                 require './views/405.php';

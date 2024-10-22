@@ -103,4 +103,82 @@ Esta aplicación cuenta con un router personalizado, por lo que dependiendo del 
 
 - **`/api/users/:id`**:
   - **GET**
-  
+
+    Obtiene los datos del usuario con el id proporcionado, en el siguiente formato:
+
+    ```json
+      {
+        "status": 200,
+        "data": {
+          "id": 12,
+          "username": "admin",
+          "email": "admin@mail.com",
+          "first_name": "Admin",
+          "last_name": "Superuser",
+          "created_at": "2024-10-20 21:30:41",
+          "updated_at": "2024-10-20 21:30:41"
+        }
+      }
+    ```
+    Puede mostrar el siguiente error al ingresar un id no existente:
+    ```json
+      {
+        "status": 500,
+        "error": "Usuario no encontrado"
+      }
+    ```
+  - **POST**
+
+    Para actualizar el usuario, recibe un *form data* con los siguientes campos:
+    - `username`: string
+    - `email`: string
+    - `password`: string opcional
+    - `password_confirm`: string opcional, debe ser igual a `password`
+    - `first_name`: string
+    - `last_name`: string
+
+    Regresa un json con el siguiente formato:
+    ```json
+      {
+        "status": 200,
+        "data": "Usuario actualizado"
+      }
+    ```
+    Errores posibles:
+    - error al actualizar:
+    ```json
+      {
+        "status": 500,
+        "error": "No se pudo actualizar el usuario"
+      }
+    ```
+    - Si el usuario no existe:
+    ```json
+      {
+        "status": 500,
+        "error": "No existe el usuario"
+      }
+    ```
+    - Al no ingresar todos los datos:
+    ```json
+        {
+          "status": 500,
+          "error": "Faltan datos necesarios"
+        }
+    ```      
+    - Al intentar ingresar un nombre de usuario ya existente (que no sea el propio):
+    ```json
+      {
+        "status": 500,
+        "error": "Ya hay un usuario con ese nombre de usuario registrado"
+      }
+    ```
+  - **DELETE**
+
+    Para eliminar usuarios, su respuesta tiene el siguiente formato:
+    ```json
+      {
+        "status": 200,
+        "error": "Usuario eliminado"
+      }
+    ```

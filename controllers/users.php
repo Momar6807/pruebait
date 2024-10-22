@@ -11,7 +11,17 @@ function getUsers()
 
 function getUser($id)
 {
-    return [];
+    global $conn;
+    // traer usuario si existe
+    $query = $conn->prepare("SELECT id, username, email, first_name, last_name, created_at, updated_at FROM users where id = ?;");
+    $query->bind_param('d', $id);
+    $query->execute();
+    $res = $query->get_result();
+    if ($res->num_rows > 0) {
+        return ['error' => false, 'data' => $res->fetch_assoc()];
+    } else {
+        return ['error' => true, 'data' => 'Usuario no encontrado'];
+    }
 }
 
 function createUser($username, $email, $password, $firstname, $lastname)
@@ -41,25 +51,57 @@ function createUser($username, $email, $password, $firstname, $lastname)
 function updateUser($id, $username, $email, $firstname, $lastname, $password = null)
 {
     global $conn;
-    // revisar si existe un usuario con ese correo o nombre de usuario
+    // revisar si existe un usuario con ese id
     $checkQuery = $conn->prepare("SELECT * FROM users WHERE id  = ?");
     $checkQuery->bind_param('d', $id);
     $checkQuery->execute();
     $check = $checkQuery->get_result();
+
     if ($check->num_rows > 0) {
-        if ($password) {
-            $checkQuery = $conn->prepare("UPDATE users set username = ?, email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?");
-            $checkQuery->bind_param('sssssd', $username, $email, $password, $firstname, $lastname, $id);
+        // buscar nombre de usuario, si existe validar si coincide con el id proporcionado para evitar duplicados
+        $existQuery = $conn->prepare("SELECT * FROM users WHERE username  = ? ");
+        $existQuery->bind_param('s', $username);
+        $existQuery->execute();
+        $userExist = $existQuery->get_result();
+        if ($userExist->num_rows > 0) {
+            // validar si el usuario tiene el id proporcionado
+            $user = $userExist->fetch_assoc();
+            $proporcionado = $user['id'] == $id;
+            if ($proporcionado) {
+                // si coincide, actualizar el usuario
+                if ($password) {
+                    $query = $conn->prepare("UPDATE users set username = ?, email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?");
+                    $query->bind_param('sssssd', $username, $email, $password, $firstname, $lastname, $id);
+                } else {
+                    $query = $conn->prepare("UPDATE users set username = ?, email = ?, first_name = ?, last_name = ? WHERE id = ?");
+                    $query->bind_param('ssssd', $username, $email, $firstname, $lastname, $id);
+                }
+                // si existe el usuario, actualizar sus datos
+                $query->execute();
+                $query->get_result();
+                if ($query->affected_rows > 0 || count($query->error_list) == 0) {
+                    return ['error' => false, 'data' => 'Usuario actualizado'];
+                } else {
+                    return ['error' => true, 'data' => 'No se pudo actualizar el usuario'];
+                }
+            } else {
+                return ['error' => true, 'data' => 'Ya hay un usuario con ese nombre de usuario registrado'];
+            }
         } else {
-            $checkQuery = $conn->prepare("UPDATE users set username = ?, email = ?, first_name = ?, last_name = ? WHERE id = ?");
-            $checkQuery->bind_param('ssssd', $username, $email, $firstname, $lastname, $id);
-        }
-        // si existe el usuario, actualizar sus datos
-        $checkQuery->execute();
-        if ($checkQuery->affected_rows > 0) {
-            return ['error' => false, 'user' => $checkQuery->get_result()];
-        } else {
-            return ['error' => true, 'data' => 'No se pudo actualizar el usuario'];
+            // si el usuario no existe, actualizar los datos
+            if ($password) {
+                $query = $conn->prepare("UPDATE users set username = ?, email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?");
+                $query->bind_param('sssssd', $username, $email, $password, $firstname, $lastname, $id);
+            } else {
+                $query = $conn->prepare("UPDATE users set username = ?, email = ?, first_name = ?, last_name = ? WHERE id = ?");
+                $query->bind_param('ssssd', $username, $email, $firstname, $lastname, $id);
+            }
+            $query->execute();
+            if ($query->affected_rows > 0) {
+                return ['error' => false, 'data' => 'Usuario actualizado'];
+            } else {
+                return ['error' => true, 'data' => 'No se pudo actualizar el usuario'];
+            }
         }
     } else {
         return ['error' => true, 'data' => 'No existe el usuario'];
@@ -73,7 +115,6 @@ function deleteUser($id)
     $deleted = $query->execute();
     return ['error' => false, 'user' => $deleted];
 }
-
 
 function login($username, $password)
 {
