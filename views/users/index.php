@@ -238,7 +238,7 @@
                 return alert('Las contraseñas no coinciden');
             }
             $.ajax({
-                method: 'PUT',
+                method: 'POST',
                 url: `/api/users/${userId}`,
                 data: formData
             }).done((response) => {

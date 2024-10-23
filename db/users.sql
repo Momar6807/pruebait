@@ -2,7 +2,7 @@
 -- crear base de datos
 
 CREATE DATABASE IF NOT EXISTS pruebait;
-go;
+
 use pruebait;
 -- tabla de usuarios
 CREATE TABLE users (
